@@ -1,0 +1,43 @@
+glm::vec2 RK2Intergrator(glm::vec2 pos, float h, glm::vec2 &velocity, glm::vec2 Acceleration)
+{
+	/*
+	K1 is the increment based on the slope at the beginning of the interval, uing y (euler's method)
+	k2 is the increment based on the slope at the midpoint of the interval, using y + (h/2)k1
+	k3 is the increment based on the slope at the midpoint of the interval, using y + (h/2)k2
+	k4 is the increment based on the slope at the end of the interval, using y + h*k3
+
+	k1-------------k2-----------------k3----------------k4
+	|<--------------------- T -------------------------->|
+	*/
+
+	// Se t current position as pos
+	glm::vec2 P = pos;
+
+	glm::vec2 k1, k2, k3, k4, vel;
+	glm::vec2 k;
+	vel = velocity;
+
+	k = EulerIntegrator(pos, 0.0f, vel, Acceleration);
+
+	k1 = vel;
+	
+	//vel = velocity;
+
+	k = EulerIntegrator(pos + (h * k1 / 2.0f), h / 2.0f, vel, Acceleration);
+	k2 = vel;
+	
+	k = EulerIntegrator(pos + (h * k2 / 2.0f), h / 2.0f, vel, Acceleration);
+	k3 = vel;
+
+	k = EulerIntegrator(pos + (h * k3), h, vel, Acceleration);
+	k4 = vel;
+
+	//Use the velocity at the mid point to compute the displacement during the timestep h
+	P += h * (k1 + (2.0f * k2) + (2.0f * k3) + k4) / 6.0f;
+
+	//Change the velocity to the value at the end of the timestep.
+	EulerIntegrator(pos, h, velocity, Acceleration);// AcceleratedVel(Acceleration, velocity, h / 2);
+
+	//Return the poisiotn P
+	return P;
+}
